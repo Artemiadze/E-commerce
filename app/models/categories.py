@@ -22,4 +22,3 @@ class Category(Base):
                                                         remote_side=[id])
     children: Mapped[list["Category"]] = relationship("Category",
                                                       back_populates="parent")
-    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="category")

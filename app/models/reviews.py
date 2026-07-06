@@ -12,7 +12,7 @@ class Review(Base):
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     comment: Mapped[str | None] = mapped_column(String(500), nullable=True)
     comment_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
-    grade: Mapped[int] = mapped_column(Integer, ge=1, le=5, nullable=False)
+    grade: Mapped[int] = mapped_column(Integer, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     product: Mapped["Product"] = relationship("Product", back_populates="reviews")
