@@ -5,6 +5,9 @@ from app.database import Base
 
 
 class User(Base):
+    """
+    Модель пользователя.
+    """
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

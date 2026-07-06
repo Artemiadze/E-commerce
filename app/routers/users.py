@@ -18,6 +18,15 @@ router = APIRouter(prefix="/users", tags=["users"])
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_async_db)):
     """
     Регистрирует нового пользователя с ролью 'buyer' или 'seller'.
+
+    Args:
+        user: UserCreate
+            Данные для создания пользователя.
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        UserSchema: Информация о созданном пользователе.
     """
 
     # Проверка уникальности email
@@ -43,6 +52,15 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_async_db)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_async_db)):
     """
     Аутентифицирует пользователя и возвращает access_token и refresh_token.
+
+    Args:
+        form_data: OAuth2PasswordRequestForm
+            Данные для аутентификации.
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        dict: access_token и refresh_token.
     """
     result = await db.scalars(select(UserModel).where(UserModel.email == form_data.username))
     user = result.first()
@@ -61,6 +79,15 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
 async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_async_db)):
     """
     Обновляет access_token с помощью refresh_token.
+
+    Args:
+        refresh_token: str
+            Refresh токен.
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        dict: access_token.
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

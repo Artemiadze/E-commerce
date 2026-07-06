@@ -3,12 +3,18 @@ from datetime import datetime
 
 
 class ReviewCreate(BaseModel):
+    """
+    Создаёт новый отзыв для товара.
+    """
     product_id: int = Field(description="ID товара")
     comment: str | None = Field(None, max_length=500, description="Комментарий к товару")
     grade: int = Field(ge=1, le=5, description="Оценка товара (1-5)")
 
 
 class Review(BaseModel):
+    """
+    Возвращает информацию об отзыве.
+    """
     id: int = Field(description="Уникальный идентификатор отзыва")
     user_id: int = Field(description="ID пользователя")
     product_id: int = Field(description="ID товара")

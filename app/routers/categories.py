@@ -18,6 +18,13 @@ router = APIRouter(
 async def get_all_categories(db: AsyncSession = Depends(get_async_db)):
     """
     Возвращает список всех активных категорий.
+
+    Args:
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        list[CategorySchema]: Список всех активных категорий.
     """
     result = await db.scalars(select(CategoryModel).where(CategoryModel.is_active==True))
     categories = result.all()
@@ -27,7 +34,16 @@ async def get_all_categories(db: AsyncSession = Depends(get_async_db)):
 @router.post("/", response_model=CategorySchema, status_code=status.HTTP_201_CREATED)
 async def create_category(category: CategoryCreate, db: AsyncSession = Depends(get_async_db)):
     """
-    Создаёт новую категорию.
+    Создаёт новую категорию. 
+
+    Args:
+        category: CategoryCreate
+            Данные для создания категории.
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        CategorySchema: Информация о созданной категории.
     """
     # Проверка существования parent_id, если указан
     if category.parent_id is not None:
@@ -51,6 +67,14 @@ async def create_category(category: CategoryCreate, db: AsyncSession = Depends(g
 async def update_category(category_id: int, category: CategoryCreate, db: AsyncSession = Depends(get_async_db)):
     """
     Обновляет категорию по её ID.
+
+    Args:
+        category_id: int
+            ID категории.
+        category: CategoryCreate
+            Данные для обновления категории.
+        db: AsyncSession
+            Сессия базы данных.
     """
     # Проверяем существование категории
     stmt = select(CategoryModel).where(CategoryModel.id == category_id,
@@ -86,6 +110,15 @@ async def update_category(category_id: int, category: CategoryCreate, db: AsyncS
 async def delete_category(category_id: int, db: AsyncSession = Depends(get_async_db)):
     """
     Выполняет мягкое удаление категории по её ID, устанавливая is_active = False.
+
+    Args:
+        category_id: int
+            ID категории.
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        CategorySchema: Информация о удаленной категории.
     """
     stmt = select(CategoryModel).where(CategoryModel.id == category_id,
                                        CategoryModel.is_active == True)

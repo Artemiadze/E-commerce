@@ -7,6 +7,9 @@ from app.database import Base
 
 
 class Category(Base):
+    """
+    Модель категории товара.
+    """
     __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(primary_key=True)

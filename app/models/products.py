@@ -6,6 +6,9 @@ from app.database import Base
 
 
 class Product(Base):
+    """
+    Модель товара.
+    """
     __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(primary_key=True)

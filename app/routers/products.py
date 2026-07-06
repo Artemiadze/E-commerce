@@ -23,6 +23,13 @@ router = APIRouter(
 async def get_all_products(db: AsyncSession = Depends(get_async_db)):
     """
     Возвращает список всех товаров.
+
+    Args:
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        list[ProductSchema]: Список всех товаров.
     """
     result = await db.scalars(select(ProductModel).where(ProductModel.is_active == True))
     products = result.all()
@@ -37,6 +44,17 @@ async def create_product(
 ):
     """
     Создаёт новый товар, привязанный к текущему продавцу (только для 'seller').
+
+    Args:
+        product: ProductCreate
+            Данные для создания товара.
+        db: AsyncSession
+            Сессия базы данных.
+        current_user: UserModel
+            Текущий пользователь.
+
+    Returns:
+        ProductSchema: Информация о созданном товаре.
     """
     category_result = await db.scalars(
         select(CategoryModel).where(CategoryModel.id == product.category_id, CategoryModel.is_active == True)
@@ -54,6 +72,15 @@ async def create_product(
 async def get_products_by_category(category_id: int, db: AsyncSession = Depends(get_async_db)):
     """
     Возвращает список товаров в указанной категории по её ID.
+
+    Args:
+        category_id: int
+            ID категории.
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        list[ProductSchema]: Список товаров в указанной категории.
     """
     result = await db.scalars(select(CategoryModel).where(CategoryModel.id == category_id,
                                        CategoryModel.is_active == True))
@@ -72,6 +99,15 @@ async def get_products_by_category(category_id: int, db: AsyncSession = Depends(
 async def get_product(product_id: int, db: AsyncSession = Depends(get_async_db)):
     """
     Возвращает детальную информацию о товаре по его ID.
+
+    Args:
+        product_id: int
+            ID товара.
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        ProductSchema: Информация о товаре.
     """
 
     # Проверка существования активного товара
@@ -96,6 +132,15 @@ async def get_product(product_id: int, db: AsyncSession = Depends(get_async_db))
 async def get_product_reviews(product_id: int, db: AsyncSession = Depends(get_async_db)):
     """
     Возвращает список активных отзывов о товаре по его ID.
+
+    Args:
+        product_id: int
+            ID товара.
+        db: AsyncSession
+            Сессия базы данных.
+
+    Returns:
+        list[ReviewSchema]: Список активных отзывов о товаре.
     """
     product_result = await db.scalars(
         select(ProductModel).where(ProductModel.id == product_id, ProductModel.is_active == True)
@@ -118,6 +163,14 @@ async def update_product(
 ):
     """
     Обновляет товар, если он принадлежит текущему продавцу (только для 'seller').
+
+    Args:
+        product_id: int
+            ID товара.
+        product: ProductCreate
+            Данные для обновления товара.
+        db: AsyncSession
+            Сессия базы данных.
     """
     result = await db.scalars(select(ProductModel).where(ProductModel.id == product_id))
     db_product = result.first()
@@ -146,6 +199,14 @@ async def delete_product(
 ):
     """
     Выполняет мягкое удаление товара, если он принадлежит текущему продавцу (только для 'seller').
+
+    Args:
+        product_id: int
+            ID товара.
+        db: AsyncSession
+            Сессия базы данных.
+        current_user: UserModel
+            Текущий пользователь.
     """
     result = await db.scalars(
         select(ProductModel).where(ProductModel.id == product_id, ProductModel.is_active == True)
