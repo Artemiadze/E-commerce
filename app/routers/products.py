@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.users import User as UserModel
 from app.auth import get_current_seller
-
+from app.models.reviews import Review as ReviewModel
+from app.schemas import Review as ReviewSchema
 from app.models.products import Product as ProductModel
 from app.models.categories import Category as CategoryModel
 from app.schemas import Product as ProductSchema, ProductCreate
@@ -41,7 +42,7 @@ async def create_product(
         select(CategoryModel).where(CategoryModel.id == product.category_id, CategoryModel.is_active == True)
     )
     if not category_result.first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category not found or inactive")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found or inactive")
     db_product = ProductModel(**product.model_dump(), seller_id=current_user.id)
     db.add(db_product)
     await db.commit()
@@ -58,7 +59,7 @@ async def get_products_by_category(category_id: int, db: AsyncSession = Depends(
                                        CategoryModel.is_active == True))
     category = result.first()
     if category is None:
-        raise HTTPException(status_code=400, detail="Category not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
 
     stmt = select(ProductModel).where(ProductModel.category_id == category_id,
                                        ProductModel.is_active == True)
@@ -78,7 +79,7 @@ async def get_product(product_id: int, db: AsyncSession = Depends(get_async_db))
                                        ProductModel.is_active == True))
     product = result.first()
     if product is None:
-        raise HTTPException(status_code=400, detail="Product not found or inactive")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found or inactive")
 
 
     # Проверка существования активной категории
@@ -86,9 +87,26 @@ async def get_product(product_id: int, db: AsyncSession = Depends(get_async_db))
                                        CategoryModel.is_active == True))
     category = result.first()
     if category is None:
-        raise HTTPException(status_code=400, detail="Category not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
 
     return product
+
+
+@router.get("/{product_id}/reviews", response_model=list[ReviewSchema])
+async def get_product_reviews(product_id: int, db: AsyncSession = Depends(get_async_db)):
+    """
+    Возвращает список активных отзывов о товаре по его ID.
+    """
+    product_result = await db.scalars(
+        select(ProductModel).where(ProductModel.id == product_id, ProductModel.is_active == True)
+    )
+    if not product_result.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found or inactive")
+
+    result = await db.scalars(
+        select(ReviewModel).where(ReviewModel.product_id == product_id, ReviewModel.is_active == True)
+    )
+    return result.all()
 
 
 @router.put("/{product_id}", response_model=ProductSchema)
@@ -111,7 +129,7 @@ async def update_product(
         select(CategoryModel).where(CategoryModel.id == product.category_id, CategoryModel.is_active == True)
     )
     if not category_result.first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category not found or inactive")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found or inactive")
     await db.execute(
         update(ProductModel).where(ProductModel.id == product_id).values(**product.model_dump())
     )
