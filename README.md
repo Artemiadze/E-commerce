@@ -1,35 +1,78 @@
 # E-commerce application on Fast API
 
 ## How to use
-1. Create the virtual environment:
+
+### Development (Docker)
+
+1. Make sure Docker and Docker Compose are installed.
+
+2. Build and start the app with PostgreSQL:
 
 ```bash
-python -m venv <title_venv>
+docker compose up --build
 ```
 
-2. Launch the virtual environment:
-
-Windows:
+3. Apply migrations
 ```bash
-. .\<title_venv>\Scripts\Activate.ps1
+docker compose exec web alembic upgrade head
 ```
 
-Linux\MacOS:
+4. Open the browser and go to:
+
 ```bash
-source <title_venv>/bin/activate
+http://127.0.0.1:8000/docs
 ```
 
-3. Install the requirement:
+To stop the containers:
+
+```bash
+docker compose down
+```
+
+### Production (Docker)
+
+Build and start the production stack (Gunicorn + Nginx + PostgreSQL):
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+Open the browser and go to:
+
+```bash
+http://127.0.0.1:8000/docs
+```
+
+### Local run without Docker (optional)
+
+1. Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Windows (PowerShell):
+
+```bash
+python -m venv .venv
+. .\.venv\Scripts\Activate.ps1
+```
+
+2. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Write to console:
+3. Start the server:
+
 ```bash
-uvicorn src.main:app --reload
+uvicorn app.main:app --reload
 ```
 
-5. Open the browser and go to:
+4. Open:
+
 ```bash
 http://127.0.0.1:8000/docs
 ```
